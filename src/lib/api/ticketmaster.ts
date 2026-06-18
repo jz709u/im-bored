@@ -88,6 +88,16 @@ export async function fetchTicketmasterEvents(
 
     const dedup = Buffer.from(`tm:${e.id}`).toString('base64')
 
+    let sourceUrl = e.url ?? null
+    if (sourceUrl) {
+      try {
+        const u = new URL(sourceUrl).searchParams.get('u')
+        if (u) sourceUrl = decodeURIComponent(u)
+      } catch {
+        // keep original if parsing fails
+      }
+    }
+
     events.push({
       title: e.name,
       description: e.description ?? e.info ?? null,
@@ -97,7 +107,7 @@ export async function fetchTicketmasterEvents(
       category,
       price_min: e.priceRanges?.[0]?.min ?? null,
       source: 'ticketmaster',
-      source_url: e.url ?? null,
+      source_url: sourceUrl,
       image_url: bestImage,
       dedup_hash: dedup,
       _venueKey: venueKey,
